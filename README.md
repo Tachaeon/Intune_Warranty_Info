@@ -1,0 +1,5 @@
+# Intune Warranty Info
+
+The PowerShell script is designed to connect to Microsoft's Graph API to retrieve a list of all devices. For Lenovo devices, it uses the `Invoke-RestMethod` cmdlet to collect warranty information directly from Lenovo's API. For HP and Dell devices, the script leverages Selenium to navigate each manufacturer's warranty check site, automatically entering device details and extracting warranty information. Once all data is collected, the script consolidates it into a CSV file, structured with columns for Manufacturer, Username, Email, SerialNumber, Model, Status, IsActive, StartDate, and EndDate. This organized output provides a comprehensive overview of device details and warranty statuses, facilitating easier tracking and management of hardware assets.
+
+[Get Lenovo device warranty info (expired or active) with PowerShell](https://www.systanddeploy.com/2024/08/using-powershell-to-know-if-lenovo.html), from https://www.systanddeploy.com was used for the Lenovo section.
