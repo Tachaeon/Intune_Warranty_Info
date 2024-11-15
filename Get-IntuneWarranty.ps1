@@ -133,32 +133,38 @@ foreach ($lenovo in $deviceInfo) {
 foreach ($dell in $deviceInfo) {
     $Manufacturer = $dell.Manufacturer
     if ($Manufacturer -eq "Dell Inc.") {
-        $DellSerial = $dell.SerialNumber
-        $username = $dell.UserDisplayName
-        $email = $dell.UserPrincipalName
-        $Selenium.Navigate().GoToUrl("https://www.dell.com/support/home/en-us/product-support/servicetag/$DellSerial/overview")
-        Start-Sleep $SleepTimer
-        $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#viewDetailsWarranty")).Click()
-        Start-Sleep $SleepTimer
-        $Model_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#warrantyDetailsPopup > div > div > div.modal-body.pt-25 > div:nth-child(1) > div.d-none.d-sm-block.card.pl-5.pt-4.pr-6.pb-5.mb-5 > div > div > div.flex-column.w-100 > div:nth-child(1) > h1")).Text
-        $Status_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#supp-svc-status-txt > span")).Text
-        $Statusv2_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#supp-svc-status-txt > span")).Text
-        $StartDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#dsk-purchaseDt")).Text
-        $EndDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#dsk-expirationDt")).Text
+        try {
+            $DellSerial = $dell.SerialNumber
+            $username = $dell.UserDisplayName
+            $email = $dell.UserPrincipalName
+            $Selenium.Navigate().GoToUrl("https://www.dell.com/support/home/en-us/product-support/servicetag/$DellSerial/overview")
+            Start-Sleep $SleepTimer
+            $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#viewDetailsWarranty")).Click()
+            Start-Sleep $SleepTimer
+            $Model_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#warrantyDetailsPopup > div > div > div.modal-body.pt-25 > div:nth-child(1) > div.d-none.d-sm-block.card.pl-5.pt-4.pr-6.pb-5.mb-5 > div > div > div.flex-column.w-100 > div:nth-child(1) > h1")).Text
+            $Status_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#supp-svc-status-txt > span")).Text
+            $Statusv2_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#supp-svc-status-txt > span")).Text
+            $StartDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#dsk-purchaseDt")).Text
+            $EndDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#dsk-expirationDt")).Text
 
-        $Warranty_Object = [PSCustomObject]@{
-            Manufacturer = $Manufacturer
-            Username     = $username
-            Email        = $email
-            SerialNumber = $DellSerial
-            Model        = $Model_Result
-            Status       = $Status_Result
-            IsActive     = $Statusv2_Result
-            StartDate    = $StartDate_Result
-            EndDate      = $EndDate_Result
+            $Warranty_Object = [PSCustomObject]@{
+                Manufacturer = $Manufacturer
+                Username     = $username
+                Email        = $email
+                SerialNumber = $DellSerial
+                Model        = $Model_Result
+                Status       = $Status_Result
+                IsActive     = $Statusv2_Result
+                StartDate    = $StartDate_Result
+                EndDate      = $EndDate_Result
+            }
+            $IntuneWarrantyData += $Warranty_Object
+            Write-Host "Added $Warranty_Object" -ForegroundColor Yellow
         }
-        $IntuneWarrantyData += $Warranty_Object
-        Write-Host "Added $Warranty_Object" -ForegroundColor Yellow
+        catch {
+            Write-Host "Either $DellSerial was not found or Selenium automation is too fast." -ForegroundColor Red
+            Continue
+        }
     }
 }
 #endregion
@@ -167,35 +173,41 @@ foreach ($dell in $deviceInfo) {
 foreach ($HP in $deviceInfo) {
     $Manufacturer = $HP.Manufacturer
     if ($Manufacturer -eq "HP") {
-        $Selenium.Navigate().GoToUrl("https://support.hp.com/us-en/check-warranty")
-        $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#inputtextpfinder")).SendKeys($HP.serialnumber)
-        $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#FindMyProduct")).Click()
-        Start-Sleep $SleepTimer
-        $Selenium.ExecuteScript("document.body.style.zoom = '.30';")
+        try {
+            $Selenium.Navigate().GoToUrl("https://support.hp.com/us-en/check-warranty")
+            $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#inputtextpfinder")).SendKeys($HP.serialnumber)
+            $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#FindMyProduct")).Click()
+            Start-Sleep $SleepTimer
+            $Selenium.ExecuteScript("document.body.style.zoom = '.30';")
         
-        $HPSerial = $HP.serialnumber
-        $username = $HP.UserDisplayName
-        $email = $HP.UserPrincipalName
-        $Model_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.product-info.ng-tns-c1772239254-0 > div.product-info-text.ng-tns-c1772239254-0 > h2")).Text
-        $Status_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(3) > div.text.ng-tns-c1772239254-0")).Text
-        $Statusv2_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#warrantyStatus > div.warrantyInfo.ng-star-inserted > div.warrantyStatus")).Text
-        $StartDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(4) > div.text.ng-tns-c1772239254-0")).Text
-        $EndDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(5) > div.text.ng-tns-c1772239254-0")).Text
+            $HPSerial = $HP.serialnumber
+            $username = $HP.UserDisplayName
+            $email = $HP.UserPrincipalName
+            $Model_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.product-info.ng-tns-c1772239254-0 > div.product-info-text.ng-tns-c1772239254-0 > h2")).Text
+            $Status_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(3) > div.text.ng-tns-c1772239254-0")).Text
+            $Statusv2_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#warrantyStatus > div.warrantyInfo.ng-star-inserted > div.warrantyStatus")).Text
+            $StartDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(4) > div.text.ng-tns-c1772239254-0")).Text
+            $EndDate_Result = $Selenium.FindElement([OpenQA.Selenium.By]::cssSelector("#directionTracker > app-layout > app-check-warranty > div > div > div.check-warranty-container-intra > app-warranty-details > div > div.details-container.ng-tns-c1772239254-0 > main > div.additional-information.ng-tns-c1772239254-0.ng-star-inserted > div > div.ng-trigger.ng-trigger-slideInOut.ng-tns-c1772239254-0.ng-star-inserted > div > div > div:nth-child(1) > div:nth-child(5) > div.text.ng-tns-c1772239254-0")).Text
 
-        $Warranty_Object = [PSCustomObject]@{
-            Manufacturer = $Manufacturer
-            Username     = $username
-            Email        = $email
-            SerialNumber = $HPSerial
-            Model        = $Model_Result
-            Status       = $Status_Result
-            IsActive     = $Statusv2_Result
-            StartDate    = $StartDate_Result
-            EndDate      = $EndDate_Result
+            $Warranty_Object = [PSCustomObject]@{
+                Manufacturer = $Manufacturer
+                Username     = $username
+                Email        = $email
+                SerialNumber = $HPSerial
+                Model        = $Model_Result
+                Status       = $Status_Result
+                IsActive     = $Statusv2_Result
+                StartDate    = $StartDate_Result
+                EndDate      = $EndDate_Result
+            }
+            $IntuneWarrantyData += $Warranty_Object
+            Write-Host "Added $Warranty_Object" -ForegroundColor Yellow
+            $Selenium.ExecuteScript("document.body.style.zoom = '1';")
         }
-        $IntuneWarrantyData += $Warranty_Object
-        Write-Host "Added $Warranty_Object" -ForegroundColor Yellow
-        $Selenium.ExecuteScript("document.body.style.zoom = '1';")
+        catch {
+            Write-Host "Either $HPSerial was not found or Selenium automation is too fast." -ForegroundColor Red
+            Continue
+        }
     }
 }
 #endregion
